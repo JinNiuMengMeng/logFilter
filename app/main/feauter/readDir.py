@@ -1,9 +1,10 @@
 # -*- coding:utf-8 -*-
 import os
-from glob import iglob, glob
+from glob import glob
 import datetime
 import tarfile
 import shutil
+import time
 
 
 class FileFilter:
@@ -34,7 +35,7 @@ class FileFilter:
         current_time = int(datetime.datetime.now().strftime('%Y%m%d%H%M'))
         if len(orderNo) < 12 or int(orderNo[0:12]) > current_time:
             return {"result": False, "message": "orderNo 长度不正确 或者 日期 格式不正确"}
-
+        start1 = time.time()
         orderNo_time = orderNo[0:12]
         for i in cls.__path:
             # 按照订单前面的日期(年月日时)匹配出文件
@@ -49,10 +50,13 @@ class FileFilter:
                 else:
                     datatime_value = datatime_value[0:10] + '30'
                 cls.__filter_file_list += glob(pathname=r'/' + i[1:] + '*' + datatime_value + '*')
-
+        end1 = time.time()
+        print("end1 - start1:", end1 - start1)
         if cls.__filter_file_list:
             cls.__tarFile()
-            return {"result": True, "message": ""}
+            end2 = time.time()
+            print("end2 - end1:", end2 - end1)
+            return {"result": True, "message": "文件筛选成功"}
         else:
             return {"result": False, "message": "没有该订单的信息"}
 
@@ -88,16 +92,7 @@ class FileFilter:
                 cmd += " | sed -n '/" + i + "/p'"
 
             if awk:
-                cmd += """| awk '{
-                for(i=7;i<=NF;i++){
-                    if (i==7){
-                        printf("%s%s: ", "➜  ", NR)
-                    };
-                    printf("%s ", $i)
-                };
-                print "\\n"}'
-                """
-
+                cmd += """awk -F 'postData:' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
             tmp += os.popen(cmd).read()
         if tmp:
             return {"result": True, "message": tmp.replace("\n", "\n\n").replace("\n\n\n\n", "\n\n")}
