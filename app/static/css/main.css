@@ -1,0 +1,59 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+#box {
+    /*background-color: #C0C0C0;*/
+    width: 1100px;
+    height: 100%;
+    margin: 0 auto;
+
+}
+#box1{
+    color: brown;
+}
+
+#logpath, #keyword, #orderNo {
+    width: 490px;
+    height: 25px;
+}
+
+p {
+    height: 35px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+label{
+    width: 70px;
+    height: 25px;
+    display:inline-block;
+}
+
+.but {
+    height: 25px;
+    width: 150px;
+    /*font-size: 20px;*/
+}
+
+.butt {
+    height: 25px;
+    width: 60px;
+    /*font-size: 20px;*/
+}
+
+.file_list {
+    font-family: "Courier New";
+    word-break: break-all;
+}
+
+.con1 {
+    font-family: "Courier New";
+}
+
+.con2 {
+    font-family: "Courier New";
+    word-break: break-all;
+    white-space: pre-line;
+}
