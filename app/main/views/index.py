@@ -12,7 +12,6 @@ def index():
 
 @main.route('/set_path', methods=['GET', 'POST'])
 def set_path():
-    print("接口 set_path 进程号 pid: ", os.getpid())
     params = {x: (y[0] if isinstance(y, list) else y) for x, y in request.args.items()}
     keys = params.get("key")
     if request.method == 'POST' or request.method == 'GET':
@@ -71,7 +70,8 @@ def filter_con():
                 result = FileFilter.content_filter(keywords=keyword_list, order=orderNo)
                 return jsonify(result)
             elif key == "过滤":
-                result = FileFilter.content_filter(keyword_list, order=orderNo, awk=True)
+                fliter_keyword = params.get("fliter_keyword")
+                result = FileFilter.content_filter(keyword_list, order=orderNo, awk=True, fli_keyword=fliter_keyword)
                 return jsonify(result)
             else:  # pass
                 pass

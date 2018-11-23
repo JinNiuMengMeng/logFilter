@@ -16,7 +16,6 @@ class FileFilter:
 
     @classmethod
     def set_path(cls, file_path):
-        print("set_path 进程号 pid: ", os.getpid())
         """  第一步: 设置日志路径  
         1. 判断路径是否存在
         2, 如果不存在返回失败, 存在的话判断末尾是否有"/", 没有的话追加
@@ -75,7 +74,7 @@ class FileFilter:
         return result_log_dict
 
     @classmethod
-    def content_filter(cls, keywords, order, awk=False):
+    def content_filter(cls, keywords, order, awk=False, fli_keyword=None):
         order = order[0:12]
         if cls.__path is None:
             return {"result": False, "message": "先设置日志路径", "data": ""}
@@ -86,16 +85,18 @@ class FileFilter:
             return {"result": False, "message": "先输入订单号或者日期", "data": ""}
 
         tmp = ""
+        print('-----------')
         for _filter_file in res_dict[key_name]:
             cmd = "nl " + _filter_file
             for i in keywords:
                 cmd += " | sed -n '/" + i + "/p'"
 
-            if awk:
+            if awk and fli_keyword:
                 # cmd += """ | awk -F 'postData:' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
-                cmd += """ | awk -F ')]' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
-
+                cmd += """ | awk -F '""" + fli_keyword + """' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
+            print(cmd)
             tmp += os.popen(cmd).read()
+        print('-----------')
         if tmp:
             return {"result": True, "message": "success", "data": tmp.split("\n")}
         else:
@@ -107,13 +108,11 @@ class FileFilter:
         shutil.rmtree(cls.__current_path + "/temp")
         os.mkdir(cls.__current_path + "/temp")
         os.popen("sed -r -i '/-log.*/d' " + cls.__current_path + "/tempFile")
-
         return {"result": True, "message": "success", "data": []}
 
     @classmethod
     def get_path(cls):
         """  查看日志路径  """
-        print("get_path 进程号 pid: ", os.getpid())
         if cls.__path:
             return {"result": True, "message": "sucess", "data": cls.__path}
         else:
@@ -187,7 +186,7 @@ class FileFilter:
         result_dict = {}
         result_dict[dict_key] = []
 
-        pool = multiprocessing.Pool(processes=10)  # 得到 tar 文件
+        pool = multiprocessing.Pool(processes=30)  # 得到 tar 文件
         for i in cls.__path:
             result.append(pool.apply_async(cls.find_file_list, (i, order)))
         pool.close()

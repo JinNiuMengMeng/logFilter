@@ -123,38 +123,44 @@ function _filterCon() {
             }
         })
     })
-}
 
-//
-//
-// function _filterCon () {
-//     $('.box3-submit').on('click', function () {
-//         var submitKey = $(this).val();
-//         var order = $('#box2_input1').val();
-//         var keyword = $('#box3_input1').val();
-//
-//         $.ajax({
-//             url: '/filter_con',
-//             method: 'GET',
-//             data: {
-//                 "key": submitKey,
-//                 "order": order,
-//                 "keyword": keyword
-//             },
-//             dataType: 'JSON',
-//             success: function (data) {
-//                 if (data.result) {
-//                     $('#box4 .result-container').html(data);
-//                 } else {
-//                     alert(data.message);
-//                 }
-//             },
-//             error: function () {
-//                 console.log(222);
-//             }
-//         })
-//     })
-// }
+    $('.box3-submit-1').on('click', function () {
+        var submitKey = $(this).val();
+        var order = $('#box2_input1').val();
+        var keyword = $('#box3_input1').val();
+        var fliter_keyword = $('#box3_input3').val();
+
+        $.ajax({
+            url: '/filter_con',
+            method: 'GET',
+            data: {
+                "key": submitKey,
+                "order": order,
+                "keyword": keyword,
+                "fliter_keyword": fliter_keyword,
+            },
+            dataType: 'JSON',
+            success: function (data) {
+                if (data.result) {
+                    if (data.data.length > 0) {
+                        var pathArray = data.data;
+                        var pathHtml = '';
+                        for (var i = 0; i < pathArray.length; i++) {
+                            var pathItem = pathArray[i] + '<br/><br/>';
+                            pathHtml += pathItem;
+                        }
+                    }
+                    $('.result-container').html(pathHtml);
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                console.log(222);
+            }
+        })
+    })
+}
 
 window.onload = function () {
     console.log(123);
