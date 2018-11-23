@@ -71,7 +71,10 @@ def filter_con():
                 return jsonify(result)
             elif key == "过滤":
                 fliter_keyword = params.get("fliter_keyword")
-                result = FileFilter.content_filter(keyword_list, order=orderNo, awk=True, fli_keyword=fliter_keyword)
+                if fliter_keyword:
+                    result = FileFilter.content_filter(keyword_list, order=orderNo, awk=True, fli_keyword=fliter_keyword)
+                else:
+                    result = FileFilter.content_filter(keyword_list, order=orderNo, awk=True)
                 return jsonify(result)
             else:  # pass
                 pass

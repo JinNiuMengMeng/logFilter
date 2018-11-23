@@ -74,7 +74,7 @@ class FileFilter:
         return result_log_dict
 
     @classmethod
-    def content_filter(cls, keywords, order, awk=False, fli_keyword=None):
+    def content_filter(cls, keywords, order, awk=False, fli_keyword=')]'):
         order = order[0:12]
         if cls.__path is None:
             return {"result": False, "message": "先设置日志路径", "data": ""}
@@ -92,7 +92,6 @@ class FileFilter:
                 cmd += " | sed -n '/" + i + "/p'"
 
             if awk and fli_keyword:
-                # cmd += """ | awk -F 'postData:' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
                 cmd += """ | awk -F '""" + fli_keyword + """' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
             print(cmd)
             tmp += os.popen(cmd).read()
