@@ -10,13 +10,27 @@
     margin: 0 auto;
 
 }
-#box1{
-    color: brown;
+
+#box1_input2, #box1_input3, #box2_input2, #box2_input3, #box3_input2, #box3_input3, #box3_input4 {
+    height: 25px;
+    width: 60px;
 }
 
-#logpath, #keyword, #orderNo {
+#box1_input4, #box2_input4, #box2_input5 {
+    height: 25px;
+    width: 150px;
+    /*font-size: 20px;*/
+}
+
+#box1_input1, #box2_input1, #box3_input1 {
     width: 490px;
     height: 25px;
+    /*font-size: 20px;*/
+}
+
+div .file_list {
+    font-family: "Courier New";
+    word-break: break-all;
 }
 
 p {
@@ -25,30 +39,13 @@ p {
     font-weight: bold;
 }
 
-label{
+label {
     width: 70px;
     height: 25px;
-    display:inline-block;
+    display: inline-block;
 }
 
-.but {
-    height: 25px;
-    width: 150px;
-    /*font-size: 20px;*/
-}
-
-.butt {
-    height: 25px;
-    width: 60px;
-    /*font-size: 20px;*/
-}
-
-.file_list {
-    font-family: "Courier New";
-    word-break: break-all;
-}
-
-.con1 {
+.file_content {
     font-family: "Courier New";
 }
 

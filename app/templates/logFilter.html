@@ -4,84 +4,60 @@
     <meta charset="utf-8"/>
     <title>日志筛选</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    {#    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>#}
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </head>
 <bady>
 
     <div id="box">  <!-- 主体 -->
+
         <div id="box1">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class="flash">
-                        {% for message in messages %}
-                            <div class="alert alert-success" style="text-align: center">
-                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                                <strong>{{ message }}</strong></div>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
-
-        </div>
-
-        <div id="box2">
-            <form action="{{ url_for('main.set_path') }}" method="post" autocomplete="on">
+            <form autocomplete="on">
                 <p>一: 首先设置日志路径</p>
                 <label for="logpath">日志路径:</label>
-                <input type="text" name="logpath" id="logpath" placeholder="日志的绝对路径, 多个路径使用半角(英文)逗号分隔!">
-                <input type="submit" name="key" class="butt" value="提交">
-                <input type="reset" name="key" class="butt" value="重置">
-
-                <input type="submit" name="key" class="but" value="查看路径列表">
+                <input type="text" id="box1_input1" placeholder="日志路径后台已经配置, 无需填写! 可点击后面查看列表">
+                <input type="button" id="box1_input2" value="提交" >
+                <input type="reset" id="box1_input3" value="重置" >
+                <input type="button" id="box1_input4" value="查看路径列表">
                 <div class="file_list">
-                    {% for i in form %}<br/>
-                        {{ i }}
-                    {% endfor %}
+
                 </div>
             </form>
+        </div>
+
+        <br/>
+
+        <div id="box2">
+            <form autocomplete="on">
+
+                <p>二: 填写日期或者订单号, 筛选文件!</p>
+                <label for="orderNo">订单号:</label>
+                <input type="text" name="orderNo" id="box2_input1"
+                       placeholder="二选一, 订单号为32位; 日期的格式为: 201801010101(2018年1月1日1点1分)">
+                <input type="button" id="box2_input2" class="box2-submit" value="提交">
+                <input type="reset" id="box2_input3" class="butt" value="重置">
+
+                <input type="button" id="box2_input4" class="box2-submit" value="查看订单相关的日志列表" >
+                <input type="button" id="box2_input5" class="box2-submit-clear" value="清除当前订单号的缓存" style="color:red;">
+            </form>
+            <br/>
+            <div class="file_content">
+            </div>
+
         </div>
 
         <br/>
 
         <div id="box3">
-            <form action="{{ url_for('main.filter_file') }}" method="post" autocomplete="on">
-
-                <p>二: 填写日期或者订单号, 筛选文件!</p>
-                <label for="orderNo">订单号:</label>
-                <input type="text" name="orderNo" id="orderNo"
-                       placeholder="二选一, 订单号为32位; 日期的格式为: 201801010101(2018年1月1日1点1分)">
-                <input type="submit" name="key" class="butt" value="提交">
-                <input type="reset" name="key" class="butt" value="重置">
-
-                <input type="submit" name="key" class="but" value="查看订单相关的日志列表">
-                <input type="submit" name="key" class="but" value="清除当前订单号的缓存" style="color:red;">
-            </form>
-            <br/>
-            <div class="con1">
-                {% for i in form_reset %}
-                    {{ i }}
-                {% endfor %}
-            </div>
-            <div class="con1">
-                {% for i in form_file %}<br>
-                    {{ i }}
-                {% endfor %}
-            </div>
-
-        </div>
-
-        <br/>
-
-        <div id="box4">
-            <form action="{{ url_for('main.filter_con') }}" method="post" autocomplete="on">
+            <form autocomplete="on">
                 <div>
                     <p>三: 填写关键字</p>
                     <label for="keyword">关键字:</label>
-                    <input type="text" name="keyword" id="keyword" placeholder="关键字有顺序之分, 多个关键字使用半角(英文)逗号分隔!">
-                    <input type="submit" name="key" class="butt" value="提交">
-                    <input type="submit" name="key" class="butt" value="过滤">
-                    <input type="submit" name="key" class="butt" value="pass">
+                    <input type="text" name="keyword" id="box3_input1" placeholder="关键字有顺序之分, 多个关键字使用半角(英文)逗号分隔!">
+                    <input type="button" id="box3_input2" class="box3-submit" value="提交">
+                    <input type="button" id="box3_input3" class="box3-submit" value="过滤">
+                    <input type="button" id="box3_input4" class="butt" value="pass">
                 </div>
             </form>
 
@@ -89,8 +65,8 @@
 
         <br/>
 
-        <div id="box5" class="con2">筛选结果为:<br/>
-            {{ form_con }}
+        <div id="box4" class="con2">筛选结果为:
+            <div id="box5" class="result-container"></div>
         </div>
     </div>
 </bady>
