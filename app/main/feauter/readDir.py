@@ -17,7 +17,10 @@ class FileFilter:
     @classmethod
     def set_path(cls, file_path):
         print("set_path 进程号 pid: ", os.getpid())
-        """  第一步: 设置日志路径  """
+        """  第一步: 设置日志路径  
+        1. 判断路径是否存在
+        2, 如果不存在返回失败, 存在的话判断末尾是否有"/", 没有的话追加
+        """
         for _path in file_path:
             if not os.path.exists(_path):
                 return {"result": False, "message": "路径不存在", "data": []}
@@ -30,7 +33,10 @@ class FileFilter:
 
     @classmethod
     def find_file(cls, orderNo):
-        """  第二步: 根据订单号或者时间筛选相应文件  """
+        """  第二步: 根据订单号或者时间筛选相应文件
+        先判断订单号对应的文件是否存在
+        不存在就查找日志路径搜索tar文件
+        """
         res = cls.__judge_order(orderNo)
         if res.get("result"):
             return cls.__pool_filter_file(orderNo)
@@ -79,7 +85,6 @@ class FileFilter:
         if not res_dict:
             return {"result": False, "message": "先输入订单号或者日期", "data": ""}
 
-        print('===========')
         tmp = ""
         for _filter_file in res_dict[key_name]:
             cmd = "nl " + _filter_file
@@ -87,12 +92,10 @@ class FileFilter:
                 cmd += " | sed -n '/" + i + "/p'"
 
             if awk:
-                cmd += """ | awk -F 'postData:' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
+                # cmd += """ | awk -F 'postData:' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
+                cmd += """ | awk -F ')]' '$2!~/^$/{printf("%s%s: %s\\n", "➜  ", NR, $2)}'"""
 
-            print(cmd)
             tmp += os.popen(cmd).read()
-
-        print('===========')
         if tmp:
             return {"result": True, "message": "success", "data": tmp.split("\n")}
         else:
@@ -164,10 +167,10 @@ class FileFilter:
         order_tar_dict = cls.__read(order=order, file_type='-tar')
         if not order_tar_dict:  # 如果日志中没有 order 的 tar 路径
             order_tar_dict = cls.__get_tar_list(order, dict_key)  # 获取 tar 文件路径
-            print(order_tar_dict)
             cls.__write(order_tar_dict)  # 将日志 tar 文件路径写入文件
 
         if order_tar_dict[dict_key]:
+            print("tar文件个数:", len(order_tar_dict[dict_key]))
             res = cls.__get_log_list(order_tar_dict[dict_key], order)  # 获取 log 文件路径
             if res:
                 cls.__write(res)  # 将日志 log 文件路径写入文件
@@ -184,7 +187,7 @@ class FileFilter:
         result_dict = {}
         result_dict[dict_key] = []
 
-        pool = multiprocessing.Pool(processes=8)  # 得到 tar 文件
+        pool = multiprocessing.Pool(processes=10)  # 得到 tar 文件
         for i in cls.__path:
             result.append(pool.apply_async(cls.find_file_list, (i, order)))
         pool.close()

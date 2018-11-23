@@ -1,7 +1,7 @@
 # -*- coding:utf-8
 import os
 from app.main import main
-from flask import request, flash, render_template, jsonify
+from flask import request, render_template, jsonify
 from app.main.feauter.readDir import FileFilter
 
 
@@ -38,7 +38,6 @@ def filter_file():
             if key == "提交":
                 res = FileFilter.find_file(orderNo)
                 if res.get("result"):
-                    flash(message=res.get("message"))
                     result_file = FileFilter.get_filter_file_list(orderNo)
                     return jsonify(result_file)
                 else:
@@ -76,31 +75,3 @@ def filter_con():
                 return jsonify(result)
             else:  # pass
                 pass
-
-
-"""
-def set_path():
-    print("接口 set_path 进程号 pid: ", os.getpid())
-    if request.method == 'POST':
-        if request.form["key"] == "提交":
-            if not request.form["logpath"]:
-                flash(message="路径不能为空")
-                return render_template('logFilter.html')
-            else:
-                log_path_list = request.form["logpath"].replace(' ', '').split(',')
-                result = FileFilter.set_path(log_path_list)
-                if result.get("result") == "false":
-                    flash(message=result.get("message"))
-                    return render_template('logFilter.html')
-                else:
-                    flash(message=result.get("message"))
-                    result = FileFilter.get_path()
-                    form = result.get("message")
-                    return render_template('logFilter.html', form=form)
-        elif request.form["key"] == "查看路径列表":
-            result = FileFilter.get_path()
-            form = result.get("message")
-            return render_template('logFilter.html', form=form)
-        else:
-            pass
-"""
