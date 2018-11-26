@@ -7,7 +7,9 @@ import tarfile
 import shutil
 import time
 import multiprocessing
-from app.config import LogFile_Path
+from pathlib import Path
+
+from app.config import LogFile_Path, FileName
 
 
 class FileFilter:
@@ -41,24 +43,6 @@ class FileFilter:
             return cls.__pool_filter_file(orderNo)
         else:
             return res
-
-    @classmethod
-    def find_file_list(cls, i, order):
-        order_time = order
-        res = []
-        # 按照订单前面的日期(年月日时)匹配出文件
-        if int(order[10:12]) == 30 or int(order[10:12]) == 00:
-            res += glob(pathname=r'/' + i[1:] + '*' + order_time + '*')
-        else:
-            datetime_value = (datetime.datetime.strptime(
-                order_time, '%Y%m%d%H%M') + datetime.timedelta(minutes=30)).strftime(
-                "%Y%m%d%H%M")
-            if int(datetime_value[-2:]) < 30:
-                datetime_value = datetime_value[0:10] + '00'
-            else:
-                datetime_value = datetime_value[0:10] + '30'
-            res += glob(pathname=r'/' + i[1:] + '*' + datetime_value + '*')
-        return res
 
     @classmethod
     def __grep_log_file(cls, path, order):
@@ -164,7 +148,7 @@ class FileFilter:
         dict_key = order + '-tar'
         order_tar_dict = cls.__read(order=order, file_type='-tar')
         if not order_tar_dict:  # 如果日志中没有 order 的 tar 路径
-            order_tar_dict = cls.__get_tar_list(order, dict_key)  # 获取 tar 文件路径
+            order_tar_dict = cls.get_tar_list(order, dict_key)  # 获取 tar 文件路径
             cls.__write(order_tar_dict)  # 将日志 tar 文件路径写入文件
 
         if order_tar_dict[dict_key]:
@@ -179,20 +163,59 @@ class FileFilter:
             return {"result": False, "message": "没有找到相关 tar 日志文件"}
 
     @classmethod
-    def __get_tar_list(cls, order, dict_key):
+    def get_tar_list(cls, order, dict_key):
         start = time.time()
-        result = []
         result_dict = {}
         result_dict[dict_key] = []
+        order_number = int(order)
 
-        pool = multiprocessing.Pool(processes=30)  # 得到 tar 文件
-        for i in cls.__path:
-            result.append(pool.apply_async(cls.find_file_list, (i, order)))
-        pool.close()
-        pool.join()
+        order_time = order
+        datetime_value = (datetime.datetime.strptime(
+            order_time, '%Y%m%d%H%M') + datetime.timedelta(minutes=30)).strftime(
+            "%Y%m%d%H%M")
 
-        for res in result:
-            result_dict[dict_key].extend(res.get())
+        for path_ in cls.__path:
+            if "172.20.70.50" in path_ or "172.20.70.51" in path_ or "172.20.70.52" in path_:
+                if order_number > 201810231430:
+                    first = 10
+                    second = 40
+                else:
+                    first = 00
+                    second = 30
+                logIp = path_.split('/')[-2]
+                result_dict[dict_key].extend(
+                    cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
+            elif "172.20.70.53" in path_ or "172.20.70.54" in path_ or "172.20.70.55" in path_:
+                if order_number > 201810231430:
+                    first = 15
+                    second = 45
+                else:
+                    first = 00
+                    second = 30
+                logIp = path_.split('/')[-2]
+                result_dict[dict_key].extend(
+                    cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
+            elif "172.20.70.56" in path_ or "172.20.70.57" in path_ or "172.20.70.58" in path_:
+                if order_number > 201810231430:
+                    first = 20
+                    second = 50
+                else:
+                    first = 00
+                    second = 30
+                logIp = path_.split('/')[-2]
+                result_dict[dict_key].extend(
+                    cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
+            else:
+                first = 00
+                second = 30
+                logIp = path_.split('/')[-2]
+                result_dict[dict_key].extend(
+                    cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
+
+        # for path_ in cls.__path:
+        #     for file_name in FileName:
+        #         if Path(path_ + file_name).exists():
+        #             result_dict[dict_key].append(path_ + file_name)
         end = time.time()
         print('-----------')
         print("获取 tar 文件时间:", end - start)
@@ -244,6 +267,66 @@ class FileFilter:
             for name in names:
                 tar.extract(name, path=cls.__current_path + "/temp")
 
+    @classmethod
+    def calculate_file_order(cls, path_, logIp, order, first, second, datetime_value):
+        ip_file_list = []
+        file_name_num = len(FileName[logIp])
+
+        time_second_number = int(order[10:12])
+        if time_second_number == first or time_second_number == second:
+            for i in range(file_name_num):
+                ip_file_list.append(path_ + FileName[logIp][i] % order)
+        else:
+            if int(datetime_value[-2:]) < second:
+                for i in range(file_name_num):
+                    ip_file_list.append(path_ + FileName[logIp][i] % (datetime_value[0:10] + str(first)))
+            else:
+                for i in range(file_name_num):
+                    ip_file_list.append(path_ + FileName[logIp][i] % (datetime_value[0:10] + str(second)))
+        return ip_file_list
+
+
+"""
+    @classmethod
+    def get_tar_list(cls, order, dict_key):
+        start = time.time()
+        result = []
+        result_dict = {}
+        result_dict[dict_key] = []
+
+        pool = multiprocessing.Pool(processes=30)  # 得到 tar 文件
+        for i in cls.__path:
+            result.append(pool.apply_async(cls.find_file_list, (i, order)))
+        pool.close()
+        pool.join()
+
+        for res in result:
+            result_dict[dict_key].extend(res.get())
+        end = time.time()
+        print('-----------')
+        print("获取 tar 文件时间:", end - start)
+        print('------------')
+        return result_dict
+        
+    @classmethod
+    def find_file_list(cls, i, order):
+        order_time = order
+        res = []
+        # 按照订单前面的日期(年月日时)匹配出文件
+        if int(order[10:12]) == 30 or int(order[10:12]) == 00:
+            res += glob(pathname=r'/' + i[1:] + '*' + order_time + '*')
+        else:
+            datetime_value = (datetime.datetime.strptime(
+                order_time, '%Y%m%d%H%M') + datetime.timedelta(minutes=30)).strftime(
+                "%Y%m%d%H%M")
+            if int(datetime_value[-2:]) < 30:
+                datetime_value = datetime_value[0:10] + '00'
+            else:
+                datetime_value = datetime_value[0:10] + '30'
+            res += glob(pathname=r'/' + i[1:] + '*' + datetime_value + '*')
+        return res
+
+"""
 
 if __name__ == "__main__":
-    pass
+    FileFilter.get_tar_list("201810040822", "201810040822-tar")

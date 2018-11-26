@@ -1,32 +1,43 @@
-# coding: utf-8
-import multiprocessing
+from gevent import monkey
+
+monkey.patch_all()
+import gevent
+from pathlib import Path
 import time
 
+dir_list = ["/home/ubuntu/Documents/logFile/172.20.70.50/",
+            "/home/ubuntu/Documents/logFile/172.20.70.51/",
+            "/home/ubuntu/Documents/logFile/172.20.70.52/",
+            "/home/ubuntu/Documents/logFile/172.20.70.53/",
+            "/home/ubuntu/Documents/logFile/172.20.70.54/",
+            "/home/ubuntu/Documents/logFile/172.20.70.55/",
+            "/home/ubuntu/Documents/logFile/172.20.70.56/",
+            "/home/ubuntu/Documents/logFile/172.20.70.57/",
+            "/home/ubuntu/Documents/logFile/172.20.70.58/",
+            "/home/ubuntu/Documents/logFile/172.20.70.59/",
+            ]
 
-def func(msg):
-    print("msg:", msg)
-    time.sleep(3)
-    print("end")
+myFileName2 = "catalina.out.201811190010.tar.gz"
+start = time.time()
 
 
-if __name__ == "__main__":
-    start = time.time()
-    pool = multiprocessing.Pool(processes=8)
-    print(time.time() - start)
-    for i in range(4):
-        msg = "hello %d" % i
-        pool.apply_async(func, (msg,))  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
-    pool.close()
-    pool.join()
-    print("Mark1~ Mark1~ Mark~~11~~~~~~~~~~~~~~~~~~~~")
-    start = time.time()
-    pool = multiprocessing.Pool(processes=8)
-    print(time.time() - start)
-    for i in range(4):
-        msg = "hello %d" % i
-        pool.apply_async(func, (msg,))  # 维持执行的进程总数为processes，当一个进程执行完毕后会添加新的进程进去
+def judgeFile1(dir_path):
+    myFileName1 = "iparking-app-api.201811191115.tar.gz"
+    if Path(dir_path + myFileName1).exists():
+        pass
 
-    pool.close()
-    pool.join()
-    print("Mark~ Mark~ Mark~~~~~22~~~~~~~~~~~~~~~~~")
-    print("Sub-process(es) done.")
+
+def judgeFile2(dir_path):
+    myFileName2 = "catalina.out.201811190010.tar.gz"
+    if Path(dir_path + myFileName2).exists():
+        pass
+
+
+for i in range(10000):
+    result = []
+    for i in dir_list:
+        result.append(gevent.spawn(judgeFile1, i))
+        # result.append(gevent.spawn(judgeFile2, i))
+    gevent.joinall(result)
+print('----')
+print(time.time() - start)
