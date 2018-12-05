@@ -84,8 +84,6 @@ function _filter_file(val) {
             }
         })
     });
-
-
 }
 
 function _filterCon() {
