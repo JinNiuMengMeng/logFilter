@@ -168,32 +168,21 @@ class FileFilter:
 
         for path_ in cls.__path:
             if "172.20.70.50" in path_ or "172.20.70.51" in path_ or "172.20.70.52" in path_:
-                if order_number > 201810231430:
-                    first = 10
-                    second = 40
-                else:
-                    first = 00
-                    second = 30
+                first = 10
+                second = 40
                 logIp = path_.split('/')[-2]
                 result_dict[dict_key].extend(
                     cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
             elif "172.20.70.53" in path_ or "172.20.70.54" in path_ or "172.20.70.55" in path_:
-                if order_number > 201810231430:
-                    first = 15
-                    second = 45
-                else:
-                    first = 00
-                    second = 30
+                first = 15
+                second = 45
                 logIp = path_.split('/')[-2]
                 result_dict[dict_key].extend(
                     cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
-            elif "172.20.70.56" in path_ or "172.20.70.57" in path_ or "172.20.70.58" in path_:
-                if order_number > 201810231430:
-                    first = 20
-                    second = 50
-                else:
-                    first = 00
-                    second = 30
+            # elif "172.20.70.56" in path_ or "172.20.70.57" in path_ or "172.20.70.58" in path_:
+            elif "172.20.70.57" in path_:
+                first = 20
+                second = 50
                 logIp = path_.split('/')[-2]
                 result_dict[dict_key].extend(
                     cls.calculate_file_order(path_, logIp, order, first, second, datetime_value))
